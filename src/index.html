@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Video chat with star</title>
+
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+      integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="assets/css/app.css" type="text/css" />
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="assets/js/rtc.js"></script>
+    <script type="module" src="assets/js/events.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.min.js"
+      integrity="sha256-2qQheewaqnZlXJ3RJRghVUwD/3fD9HNqxh4C+zvgmF4="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+
+  <body class="bg-dark">
+    <nav class="navbar fixed-top bg-info d-print-none bg-warning">
+      <p class="text-dark text-center">🔥HelloSuperStar Live Chat!🔥</p>
+
+      <div class="pull-right room-comm" hidden>
+        <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-video">
+          <!-- <i class="fa fa-video text-white"></i> -->
+        </button>
+
+        <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-mute">
+          <!-- <i class="fa fa-volume-up text-white"></i> -->
+        </button>
+
+        <button
+          class="btn btn-sm text-white pull-right d-md-none btn-no-effect"
+          id="toggle-chat-pane"
+        >
+          <!-- <i class="fa fa-comment"></i> -->
+          <span
+            class="badge badge-danger very-small font-weight-lighter"
+            id="new-chat-notification"
+            hidden
+            >New</span
+          >
+        </button>
+
+        <!-- <button class="btn btn-sm rounded-0 btn-no-effect text-white">
+          <a href="/" class="text-white text-decoration-none">Leave Room</a>
+        </button> -->
+      </div>
+    </nav>
+
+    <div class="container-fluid my-4" id="room-create" hidden>
+      <div class="row">
+        <div class="col-12 h2 mt-5 text-center text-light">Create Room</div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-12 text-center">
+          <span
+            class="form-text small text-danger text-light"
+            id="err-msg"
+          ></span>
+        </div>
+
+        <div class="col-12 col-md-4 offset-md-4 my-4">
+          <label for="room-name  " class="text-light">Room Name</label>
+          <input
+            type="text"
+            id="room-name"
+            class="form-control rounded-0"
+            placeholder="Room Name"
+          />
+        </div>
+
+        <div class="col-12 col-md-4 offset-md-4 my-4 ">
+          <label for="your-name" class="text-light">Your Name</label>
+          <input
+            type="text"
+            id="your-name"
+            class="form-control rounded-0"
+            placeholder="Your Name"
+          />
+        </div>
+
+        <div class="col-12 col-md-4 offset-md-4 my-4">
+          <button
+            id="create-room"
+            class="btn btn-block rounded-0 btn-warning text-black"
+          >
+            Create Room
+          </button>
+        </div>
+
+        <div
+          class="col-12 col-md-4 offset-md-4 my-4 text-light"
+          id="room-created"
+        ></div>
+      </div>
+    </div>
+
+    <div class="container-fluid my-4" id="username-set" hidden>
+      <div class="row">
+        <div class="col-12 h4 mt-5 text-center text-light">Your Name</div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-12 text-center">
+          <span
+            class="form-text small text-danger"
+            id="err-msg-username"
+          ></span>
+        </div>
+
+        <div class="col-12 col-md-4 offset-md-4 mb-3">
+          <label for="username" class="text-light">Your Name</label>
+          <input
+            type="text"
+            id="username"
+            class="form-control rounded-0"
+            placeholder="Your Name"
+          />
+        </div>
+
+        <div class="col-12 col-md-4 offset-md-4 my-4">
+          <button
+            id="enter-room"
+            class="btn btn-block rounded-0 btn-warning fw-bold"
+          >
+            <b>Call</b>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid room-comm my-4" hidden>
+      <div class="row">
+        <video class="local-video" id="local" volume="0" autoplay muted></video>
+      </div>
+
+      <div class="row">
+        <div class="col-md-9 mt-3 mb-3 main">
+          <div class="row" id="videos"></div>
+        </div>
+      </div>
+
+
+      <div class="row  p-2 d-flex justify-content-center">
+<div class="all-content">
+ <div class="text-center">
+  <button class="btn btn-danger my-2 w-100">
+    <a href="https://www.hellosuperstars.com" class="text-light text-decoration-none"><b>Leave Room</b></a>
+  </button>
+ </div>
+  
+        <div class="all-btn">
+          <button id="shareScreen" class='btn btn-info'>Capture Screen</button>
+          <button id="rec" disabled class='btn btn-success'><i class="fas fa-record-vinyl mx-1"></i> Record </button>
+          <button id="stop" class='btn btn-info' disabled> 🛑 Stop</button>
+          <!-- <button class="btn btn-danger">
+            <a href="https://www.hellosuperstars.com" class="text-light text-decoration-none"><b>Leave Room</b></a>
+          </button> -->
+  
+          <a
+          style=" text-decoration: none;"
+            id="downloadLink"
+            class="downloding-link"
+            download="mediarecorder.webm"
+            name="mediarecorder.webm"
+            href
+          ></a>
+          <div id="error"></div>
+         </div>
+</div>
+
+
+       
+
+
+
+
+
+
+
+
+       
+      </div>
+    </div>
+    <script>
+      var shareBtn = document.querySelector("button#shareScreen");
+      shareBtn.onclick = shareScreen;
+
+      var recBtn = document.querySelector("button#rec");
+      recBtn.onclick = onBtnRecordClicked;
+
+      var stopBtn = document.querySelector("button#stop");
+      stopBtn.onclick = onBtnStopClicked;
+
+      var videoElement = document.querySelector("video");
+      videoElement.style.backgroundColor = "black";
+
+      var downloadLink = document.querySelector("a#downloadLink");
+
+      var mediaRecorder;
+      var localStream = null;
+      document.getElementById("error").innerHTML = "";
+
+      function shareScreen() {
+        console.log("shareScreen");
+        document.getElementById("error").innerHTML = "";
+        var screenConstraints = { video: true, audio: true };
+        navigator.mediaDevices
+          .getDisplayMedia(screenConstraints)
+          .then(function (screenStream) {
+            /* use the screen & audio stream */
+
+            var micConstraints = { audio: true };
+            navigator.mediaDevices
+              .getUserMedia(micConstraints)
+              .then(function (micStream) {
+                /* use the microphone stream */
+
+                //create a new stream in which to pack everything together
+                var composedStream = new MediaStream();
+
+                //add the screen video stream
+                screenStream.getVideoTracks().forEach(function (videoTrack) {
+                  composedStream.addTrack(videoTrack);
+                });
+
+                //create new Audio Context
+                var context = new AudioContext();
+
+                //create new MediaStream destination. This is were our final stream will be.
+                var audioDestinationNode =
+                  context.createMediaStreamDestination();
+
+                //check to see if we have a screen stream and only then add it
+                if (screenStream && screenStream.getAudioTracks().length > 0) {
+                  //get the audio from the screen stream
+                  const systemSource =
+                    context.createMediaStreamSource(screenStream);
+
+                  //set it's volume (from 0.1 to 1.0)
+                  const systemGain = context.createGain();
+                  systemGain.gain.value = 1.0;
+
+                  //add it to the destination
+                  systemSource
+                    .connect(systemGain)
+                    .connect(audioDestinationNode);
+                }
+
+                //check to see if we have a microphone stream and only then add it
+                if (micStream && micStream.getAudioTracks().length > 0) {
+                  //get the audio from the microphone stream
+                  const micSource = context.createMediaStreamSource(micStream);
+
+                  //set it's volume
+                  const micGain = context.createGain();
+                  micGain.gain.value = 1.0;
+
+                  //add it to the destination
+                  micSource.connect(micGain).connect(audioDestinationNode);
+                }
+
+                //add the combined audio stream
+                audioDestinationNode.stream
+                  .getAudioTracks()
+                  .forEach(function (audioTrack) {
+                    composedStream.addTrack(audioTrack);
+                  });
+
+                //pass over to function that shows the stream and activates the recording controls
+                onCombinedStreamAvailable(composedStream);
+              })
+              .catch(function (err) {
+                console.log(err);
+                document.getElementById("error").innerHTML =
+                  "You need a microphone to run the demo";
+              });
+          })
+          .catch(function (err) {
+            console.log(err);
+            document.getElementById("error").innerHTML =
+              "You need to share your screen to run the demo";
+          });
+      }
+
+      function onCombinedStreamAvailable(stream) {
+        console.log("onCombinedStreamAvailable");
+        localStream = stream;
+
+        videoElement.srcObject = localStream;
+        videoElement.play();
+        videoElement.muted = true;
+        recBtn.disabled = false;
+        shareBtn.disabled = true;
+        stopBtn.disabled = true;
+      }
+
+      function onBtnRecordClicked() {
+        console.log("onBtnRecordClicked");
+        if (localStream != null) {
+          mediaRecorder = new MediaRecorder(localStream);
+          mediaRecorder.onstop = function () {
+            console.log("mediaRecorder.onstop");
+
+            var blob = new Blob(chunks, { type: "video/webm" });
+            chunks = [];
+            var videoURL = window.URL.createObjectURL(blob);
+
+            downloadLink.href = videoURL;
+            videoElement.src = videoURL;
+            downloadLink.innerHTML = `<div class="text-center my-2 text-light" ><i class="fas fa-cloud-download-alt mx-2"></i> Download</div>`;
+          };
+
+          let chunks = [];
+          mediaRecorder.ondataavailable = function (e) {
+            chunks.push(e.data);
+          };
+
+          mediaRecorder.start(2);
+          console.log(mediaRecorder.state);
+
+          recBtn.style.background = "red";
+          recBtn.style.color = "black";
+
+          recBtn.disabled = true;
+          shareBtn.disabled = true;
+          stopBtn.disabled = false;
+        } else {
+          console.log("localStream is missing");
+        }
+      }
+
+      function onBtnStopClicked() {
+        mediaRecorder.stop();
+        console.log(mediaRecorder.state);
+        console.log("recorder stopped");
+        recBtn.style.background = "";
+        recBtn.style.color = "";
+      }
+    </script>
+  </body>
+</html>
