@@ -54,11 +54,11 @@
 }
 
 
-.remote-video{
+/* .remote-video{
     position: relative;
     object-fit: cover !important;
     height: 300px;
-}
+} */
 
 .main{
     padding-top: 40px;
@@ -125,14 +125,14 @@
         display: none;
     }
 
-    .remote-video{
+    /* .remote-video{
         height: 200px;
-    }
+    } */
 
-    .local-video{
+    /* .local-video{
         height: 80px;
         width: 100px;
-    }
+    } */
 
     #chat-messages{
         height: 60vh;
@@ -148,4 +148,7 @@
    .all-btn{
        display: none;
    }
+  }
+  .card-style{
+ border: none !important
   }
