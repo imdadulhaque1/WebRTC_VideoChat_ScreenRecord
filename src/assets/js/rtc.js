@@ -166,7 +166,7 @@ window.addEventListener('load', ()=>{
                     
                     //create a new div for card
                     let cardDiv = document.createElement('div');
-                    cardDiv.className = 'card card-style mb-3';
+                    cardDiv.className = 'card card-style m-0 p-0 mb-3';
                     cardDiv.appendChild(newVid);
                     
                     //create a new div for everything
